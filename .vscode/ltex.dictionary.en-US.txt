@@ -1,0 +1,4 @@
+multiferroic
+polycrystal
+eigenstrain
+flexoelectric

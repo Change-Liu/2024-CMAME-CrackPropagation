@@ -1,0 +1,281 @@
+\section{Residual and the tangent matrices}
+The weak form of governing equation can be expressed in matrix form:
+\begin{equation}\label{eq23}
+    \begin{split}
+        &\int_\Omega\bigg[ \delta\mathbf{\varepsilon}^T\mathbf{c}\mathbf{\varepsilon}-\delta\mathbf{\varepsilon}^T\mathbf{Q}\mathbf{P}+\delta\mathbf{\varepsilon}^T\mathbf{f}\mathbf{\xi}-\delta\mathbf{\gamma}^T\mathbf{f'}\mathbf{P}-\delta\mathbf{E}^T\mathbf{k}\mathbf{E}+\delta\mathbf{P}^T\mathbf{\alpha}\mathbf{P}\\
+        &-\delta\mathbf{P}^T\mathbf{Q'}\mathbf{\varepsilon}-\delta\mathbf{P}^T{\mathbf{f}'}^T\mathbf{\gamma}+\frac{1}{L_P}\delta\mathbf{P}^T \mathbf{\dot{P}} +\delta\mathbf{\xi}^T\mathbf{G}\mathbf{\xi}+\delta\mathbf{\xi}^T\mathbf{f}\mathbf{\varepsilon}\\
+        &+\delta v\cdot\left( \frac{1}{L_\nu} \dot{v}+ \delta v\frac{\partial F'}{\partial v}+G_c\frac{v-1}{2k} \right)+4\delta v_{,i}G_ckv_{,i} \bigg] \mathrm{d} V\\
+        =&\int_{\partial \Omega} \left( \delta \mathbf{u}^T\mathbf{\tau}-\delta \mathbf{\varepsilon}^T\mathbf{M}-\delta \phi \cdot \omega + \delta\mathbf{P}^T\mathbf{\pi}+\delta v\zeta\right)\mathrm{d}S
+    \end{split}
+\end{equation}
+with the material coefficient matrices
+\begin{equation}
+    \begin{split}
+        &
+        {\mathbf{c}}=g(\nu)\begin{bmatrix}
+            c_{11} & c_{12} & 0 \\
+            c_{12} & c_{11} & 0 \\
+            0 & 0 & c_{44}
+        \end{bmatrix},\;
+        {\mathbf{Q}(P_i)}=g(\nu)\begin{bmatrix}
+            q_{11}P_1 & q_{12}P_2 \\
+            q_{12}P_1 & q_{11}P_2 \\
+            0 &  q_{44}P_1
+        \end{bmatrix},\;\\
+        &
+        {\mathbf{f}}=\frac{1}{2}g(\nu)\begin{bmatrix}
+            f_{11} & f_{12} & 0 & 0 \\
+            f_{12} & f_{11} & 0 & 0 \\
+            0 & 0 & f_{44} & f_{44}
+        \end{bmatrix}, \;
+        {\mathbf{f}'}=\frac{1}{2}g(\nu)\begin{bmatrix}
+            f_{11} & 0 \\
+            0 & f_{12} \\
+            f_{12} & 0 \\
+            0 & f_{11} \\
+            0 & f_{44} \\
+            f_{44} & 0
+        \end{bmatrix},\\
+        &
+        {\mathbf{\kappa}}=g(\nu)\begin{bmatrix}
+            \kappa & 0 \\
+            0 & \kappa
+        \end{bmatrix}\; \text{(electrical impermeable)},\;
+        {\mathbf{\kappa}}=\begin{bmatrix}
+            \kappa & 0 \\
+            0 & \kappa
+        \end{bmatrix}\; \text{(electrical permeable)},\; \\
+        &
+        \mathbf{\alpha}(P_i)=\begin{bmatrix}
+             2\alpha_1+4\alpha_{11}P_1^2+2\alpha_{12}P_2^2+6\alpha_{111}P_1^4 & {}\\
+             +\alpha_{112}(2P_2^4+4P_1^2P_2^2)+8\alpha_{1111}P_1^6  & 0\\
+             +\alpha_{1112}(6P_1^4P_2^2+2P_2^6)+4\alpha_{1122}P_1^2P_2^4 & {} \\
+             {}& 2\alpha_1+4\alpha_{11}P_2^2+2\alpha_{12}P_1^2+6\alpha_{111}P_2^4 \\
+             0 & +\alpha_{112}(2P_1^4+4P_1^2P_2^2)+8\alpha_{1111}P_2^6\\
+             {}& +\alpha_{1112}(6P_2^4P_1^2+2P_1^6)+4\alpha_{1122}P_2^2P_1^4 
+        \end{bmatrix}
+        \\
+        & 
+        {\mathbf{Q}'(P_i)}=g(\nu)\begin{bmatrix}
+            2q_{11}P_1 & 2q_{12}P_1 & q_{44}P_2 \\
+            2q_{12}P_2 & 2q_{11}P_2 & q_{44}P_1
+        \end{bmatrix}, \\
+        &
+        {\mathbf{G}}=g(\nu)\begin{bmatrix}
+            G_{11} & G_{12} & 0 & 0 \\
+            G_{12} & G_{11} & 0 & 0 \\
+            0 & 0 & G_{44}+G_{44}' & G_{44}-G_{44}' \\
+            0 & 0 & G_{44}-G_{44}' & G_{44}+G_{44}' \\
+        \end{bmatrix}, \;
+        \mathbf{G}_\nu=\begin{bmatrix}
+            4G_ck & 0 \\
+            0 & 4G_ck
+        \end{bmatrix}.
+    \end{split}
+\end{equation}
+
+The damage model presented in the previous section is implemented by the 2D isogeometric analysis (IGA). In the implementation the displacement $\mathbf{u}$, the electric potential $\phi$, and the spontaneous polarization $\mathbf{P}$, and the damage variable $v$ are taken as the nodal degrees of freedom. Thus, each node has six degrees of freedom, namely
+\begin{equation}
+    \mathbf{d}^I=\left[ u_1^I\quad u_2^I\quad \phi\quad P_1^I\quad P_2^I\quad v \right]^T,
+\end{equation}
+where the superscript $I$ indicates the variable at element node. 
+Substituting Eqs.\eqref{eq40}-\eqref{HB} into Eq.\eqref{eq23}, the weak form of governing equation can be rewritten as 
+\begin{equation}
+\begin{split}
+        &\begin{bmatrix}
+            \mathbf{K}_{uu} & 0 & -\mathbf{K}_{uP}+\mathbf{K}_{u\xi}-\mathbf{K}_{\gamma P} & 0 \\
+            0 & -\mathbf{K}_{\phi\phi} & -\mathbf{K}_{\phi P} & 0 \\
+            -\mathbf{K}_{Pu}+\mathbf{K}_{\xi u}-\mathbf{K}_{P \gamma} & -\mathbf{K}_{P\phi } & \mathbf{K}_{PP}+K'_{PP} & 0 \\
+            0 & 0 & 0 & \mathbf{K}_{\nu\nu}+\mathbf{K}'_{\nu\nu}
+        \end{bmatrix}
+        \begin{bmatrix}
+            \mathbf{u}\\ \mathbf{\phi} \\ \mathbf{P} \\ \mathbf{v}
+        \end{bmatrix}^I \\
+       + &
+        \begin{bmatrix}
+            0 & 0 & 0 & 0 \\
+            0 & 0 & 0 & 0 \\
+            0 & 0 & \mathbf{K}_{Pt} & 0 \\
+            0 & 0 & 0 & \mathbf{K}_{\nu t} 
+        \end{bmatrix}
+        \begin{bmatrix}
+            0\\ 0 \\ \dot{\mathbf{P}} \\ \dot{\mathbf{v}}
+        \end{bmatrix}^I
+        =
+        \begin{bmatrix}
+            \mathbf{F}_S+\mathbf{M}_S \\
+            {\Omega}_S \\
+            \mathbf{\Pi}_S \\
+            \mathbf{\zeta}
+        \end{bmatrix}
+\end{split}
+\end{equation}
+in which 
+\begin{equation}
+    \begin{split}
+        & \mathbf{K}_{uu}=\int_\Omega \mathbf{B}_u^T{\mathbf{c}}\mathbf{B}_u\,\mathrm{d}V;\;  
+        \mathbf{K}_{uP}=\int_\Omega \mathbf{B}_u^T{\mathbf{Q}(P_i)}\mathbf{N}_P\,\mathrm{d}V; \; \\
+        & \mathbf{K}_{u\xi}=\int_\Omega \mathbf{B}_u^T{\mathbf{f}}\mathbf{B}_P\,\mathrm{d}V;\;
+        \mathbf{K}_{\gamma P}=\int_\Omega \mathbf{H}_u^T{\mathbf{f'}}\mathbf{N}_P\,\mathrm{d}V; \\
+        &\mathbf{K}_{\phi\phi}=\int_\Omega \mathbf{B}_\phi^T{\mathbf{\kappa}}\mathbf{B}_\phi\,\mathrm{d}V; \;
+        \mathbf{K}_{PP}=\int_\Omega \mathbf{N}_P^T\mathbf{\alpha}(P_i)\mathbf{N}_P\,\mathrm{d}V; \; \\
+        &\mathbf{K}_{PP'}=\int_\Omega \mathbf{B}_P^T{\mathbf{G}}\mathbf{B}_P\,\mathrm{d}V; \; \mathbf{K}_{Pu}=\int_\Omega \mathbf{N}_P^T{\mathbf{Q}'(P_i)}\mathbf{B}_u\, \mathrm{d}V; \\
+        &\mathbf{K}_{\nu\nu}'=\int_\Omega \mathbf{B}_\nu^T \mathbf{G}_\nu \mathbf{B}_\nu\, \text{d}V; \;
+        \mathbf{K}_{\xi u}=\mathbf{K}_{u\xi}^T;\;
+        \mathbf{K}_{P\gamma}=\mathbf{K}_{\gamma P}^T;\; 
+         \\
+        &\mathbf{F}_S=\int_{\partial \Omega} \mathbf{N}_u^T\mathbf{N}_T\,\mathrm{d}S \, \mathbf{T}^I; \;
+        \mathbf{M}_S=\int_{\partial \Omega} \mathbf{B}_u^T\mathbf{N}_M\,\mathrm{d}S \, \mathbf{M}^I; \\
+        & \mathbf{\Omega}_S=-\int_{\partial \Omega} \mathbf{N}_\phi^T\mathbf{N}_\omega\,\mathrm{d}S \, \mathbf{\Omega}^I;\; 
+        \mathbf{\Pi}_S=\int_{\partial \Omega} \mathbf{N}_P^T\mathbf{N}_\pi \mathrm{d}S \,\mathbf{\Pi}^I; \\
+        &\mathbf{\zeta}=\int_{\partial \Omega} \mathbf{N}_\nu^T \mathbf{N}_\zeta\mathrm{d}S\, \mathbf{\zeta}^I+\int_\Omega \mathbf{N}_\nu^T\frac{G_c}{l_\nu}\,\text{d}V.
+    \end{split}
+\end{equation}
+
+For electrical permeable crack,
+\begin{equation}
+    \begin{split}
+        & \mathbf{K}_{\phi P}=\int_\Omega \mathbf{B}_\phi^T\mathbf{N}_P\,\mathrm{d}V; \\
+        &\mathbf{K}_{\nu\nu}=\int_\Omega \mathbf{N}_\nu^T \left[(f_\mathrm{grad}+f_\mathrm{elas}+f_\mathrm{flex})+\frac{G_c}{l_\nu}\right]\mathbf{N}_\nu \,\mathrm{d}V.
+    \end{split}
+\end{equation}
+For electrical impermeable crack, 
+\begin{equation}
+    \begin{split}
+        &\mathbf{K}_{\phi P}=\int_\Omega \mathbf{B}_\phi^T{\mathbf{v}}\mathbf{N}_P\,\mathrm{d}V; \\
+        &\mathbf{K}_{\nu\nu}=\int_\Omega \mathbf{N}_\nu^T \left[(f_\mathrm{grad}+f_\mathrm{elas}+f_\mathrm{flex}+f_\mathrm{elec})+\frac{G_c}{l_\nu}\right]\mathbf{N}_\nu \,\mathrm{d}V .
+    \end{split}
+\end{equation}
+
+Newton-Raphson method and the backward Euler method is applied here to solve the time-dependent nonlinear partial differential equations. The iteration equation in Newton-Raphson method is 
+\begin{equation}
+     \mathbf{d}^{n+1}=\mathbf{d}^n-\mathbf{R}^n/\mathbf{S}^n,
+\end{equation}
+with 
+\begin{equation}
+    \begin{split}
+        &\mathbf{R}= \\
+        &\begin{bmatrix}
+            \mathbf{K}_{uu} & 0 & -\mathbf{K}_{uP}+\mathbf{K}_{u\xi}-\mathbf{K}_{\gamma P} & 0 \\
+            0 & -\mathbf{K}_{\phi\phi} & \mathbf{K}_{\phi P} & 0 \\
+            -\mathbf{K}_{Pu}+\mathbf{K}_{\xi u}-\mathbf{K}_{P \gamma} & -\mathbf{K}_{P\phi } & \mathbf{K}_{PP}+K'_{PP} & 0 \\
+            0 & 0 & 0 & \mathbf{K}_{\nu\nu}+\mathbf{K}'_{\nu\nu}
+        \end{bmatrix}
+        \begin{bmatrix}
+            \mathbf{u}\\ \mathbf{\phi} \\ \mathbf{P} \\ \mathbf{v}
+        \end{bmatrix}^I \\
+        &+ 
+        \begin{bmatrix}
+            0 & 0 & 0 & 0 \\
+            0 & 0 & 0 & 0 \\
+            0 & 0 & \mathbf{K}_{Pt} & 0 \\
+            0 & 0 & 0 & \mathbf{K}_{vt} 
+        \end{bmatrix}
+        \begin{bmatrix}
+            0\\ 0 \\ \dot{\mathbf{P}} \\ \dot{\mathbf{v}}
+        \end{bmatrix}^I
+        -
+        \begin{bmatrix}
+            \mathbf{F}_S+\mathbf{M}_S \\
+            {\Omega}_S \\
+            \mathbf{\Pi}_S \\
+            \mathbf{\zeta}_S
+        \end{bmatrix}
+    \end{split}
+\end{equation}
+\begin{equation}
+    \mathbf{S}=\begin{bmatrix}
+        \mathbf{K}_{uu} & 0 & -\mathbf{K}_{uP}^S+\mathbf{K}_{u\xi}-\mathbf{K}_{\gamma P} & \mathbf{K}_{uv}^S \\
+        0 & -\mathbf{K}_{\phi\phi} & -\mathbf{K}_{\phi P} & {\mathbf{k}_{\phi v}^S} \\
+        -\mathbf{K}_{Pu}^S+\mathbf{K}_{\xi u}-\mathbf{K}_{P \gamma} & -\mathbf{K}_{P\phi } & \mathbf{K}_{PP}^S+\mathbf{K}'_{PP}+\mathbf{K}_{Pt}^S & \mathbf{K}_{Pv}^S \\
+        \mathbf{K}_{vu}^S & {\mathbf{k}_{v\phi}^S} & \mathbf{K}_{vP}^S & \mathbf{K}_{\nu\nu}+\mathbf{K}'_{\nu\nu}+\mathbf{K}_{vt}^S
+    \end{bmatrix},
+\end{equation}
+in which 
+\begin{equation}
+    \mathbf{K}_{uP}^S=\int_\Omega \mathbf{B}_u^T \mathbf{Q}'^T \mathbf{N}_P\, \text{d}V,
+\end{equation}
+\begin{equation}
+    \mathbf{K}_{uv}^S=\int_\Omega\left(\mathbf{B}_u^T\mathbf{c}_\nu\mathbf{N}_\nu-\mathbf{B}_u^T\mathbf{Q}_\nu\mathbf{N}_\nu+\mathbf{B}_u^T\mathbf{f}_\nu\mathbf{N}_\nu-\mathbf{H}_u^T\mathbf{f}_\nu'\mathbf{N}_\nu\right)\mathrm{d}V,\\
+\end{equation}
+\begin{equation}
+    \begin{split}
+    &{\mathbf{K}_{\phi v}}=0 \text{ (electrical permeable)},\;\\
+    &{\mathbf{K}_{\phi v}}=\int_\Omega \mathbf{B}_\phi \mathbf{\kappa}_\nu \mathbf{N}_\nu\, \text{d}V \text{ (electrical permeable)},\;
+\end{split}
+\end{equation}
+\begin{equation}
+    \mathbf{K}_{Pu}^S=\int_\Omega \mathbf{N}_P^T \mathbf{Q}^S\mathbf{B}_u \, \text{d}V,
+\end{equation}
+\begin{equation}
+    \mathbf{K}_{PP}^S=\int_\Omega \mathbf{N}_P^T \mathbf{\alpha}^S \mathbf{N}_P\, \text{d}V,
+\end{equation}
+\begin{equation}
+    \mathbf{K}_{Pt}^S=\int_\Omega \mathbf{N}_P^T \mathbf{P}_{i,t}^S \mathbf{N}_P\, \text{d}V,
+\end{equation}
+\begin{equation}
+    \mathbf{K}_{Pv}^S=\int_\Omega (-\mathbf{N}_P \mathbf{Q}'\mathbf{N}_\nu+\mathbf{B}_P\mathbf{f}_\nu^T\mathbf{N}_\nu-\mathbf{N}_P\mathbf{f}'^T\mathbf{N}_\nu)\, \text{d}V
+\end{equation}
+\begin{equation}
+    \mathbf{K}_{\nu t}^S=\int_\Omega \mathbf{N}_\nu^T \mathbf{v}_{,t}^S \mathbf{N}_\nu\, \text{d}V.
+\end{equation}
+
+
+And the corresponding stiffness matrixes
+\begin{equation}
+\begin{split}
+        &
+        \mathbf{c}_\nu=g'(\nu)\begin{bmatrix}
+            c_{11}\varepsilon_{11}+c_{12}\varepsilon_{22} \\
+            c_{12}\varepsilon_{11}+c_{11}\varepsilon_{22} \\
+            2c_{44}\varepsilon_{12}
+        \end{bmatrix},\;
+        \mathbf{Q}_\nu=g'(\nu)\begin{bmatrix}
+            q_{11}P_1^2+q_{12}P_2^2 \\
+            q_{12}P_1^2+q_{11}P_2^2 \\
+            q_{44}P_1P_2 \\
+        \end{bmatrix},\; \\
+        &
+        \mathbf{f}_\nu=\frac{1}{2}g'(\nu)\begin{bmatrix}
+            f_{11}P_{1,1}+f_{12}P_{2,2} \\
+            f_{12}P_{1,1}+f_{11}P_{2,2} \\
+            f_{44}(P_{1,2}+P_{2,1}) \\
+        \end{bmatrix},\;        
+        \mathbf{f}_\nu'=\frac{1}{2}g'(\nu)\begin{bmatrix}
+            f_{11}P_1 \\
+            f_{12}P_2 \\
+            f_{12}P_1 \\
+            f_{11}P_2 \\
+            f_{44}P_2 \\
+            f_{44}P_1
+        \end{bmatrix}, \\
+        &
+        \mathbf{\kappa}_\nu=g'(\nu)\begin{bmatrix}
+            -\kappa E_1 - P_1 \\
+            -\kappa E_2 - P_2 
+        \end{bmatrix},
+        \mathbf{Q}^S=g(\nu)\begin{bmatrix}
+            2Q_{11}P_1 & 2Q_{12}P_1 & Q_{44}P_2 \\
+            2Q_{12}P_2 & 2Q_{11}P_2 & Q_{44}P_1
+        \end{bmatrix}, \\
+        &
+        \mathbf{P}_{i,t}^S=\begin{bmatrix}
+            \dfrac{1}{\Delta t} & 0 \\
+            0 & \dfrac{1}{\Delta t} \\
+        \end{bmatrix}, \;
+        \mathbf{v}_{,t}^S=\begin{bmatrix}
+            \dfrac{1}{\Delta t} & 0 \\
+            0 & \dfrac{1}{\Delta t} \\
+        \end{bmatrix}, \\
+        &
+        \mathbf{\alpha}^S=\begin{bmatrix}
+            2\alpha_1 +12 \alpha_{11}P_1^2+2\alpha_{12}P_2^2+30\alpha_{111}P_1^4 & {4\alpha_{12}P_1P_2+8\alpha_{112}(P_1P_2^3+P_1^3P_2)} \\
+            +\alpha_{112}(2P_2^4+12P_1^2P_2^2)+56\alpha_{1111}P_1^6 & +12\alpha_{1112}(P_1^5P_2+P_1P_2^5) \\
+            +\alpha_{1112}(30P_1^4P_2^2+2P_2^6)+12\alpha_{1122}P_1^2P_2^4 & {+16\alpha_{1122}P_1^3P_2^3} \\
+            {}&{}\\
+            {4\alpha_{12}P_1P_2+8\alpha_{112}(P_1P_2^3+P_1^3P_2)} & 2\alpha_1 +12 \alpha_{11}P_2^2+2\alpha_{12}P_1^2+30\alpha_{111}P_2^4 \\
+            +12\alpha_{1112}(P_1^5P_2+P_1P_2^5) & +\alpha_{112}(2P_1^4+12P_1^2P_2^2)+56\alpha_{1111}P_2^6 \\
+            {+16\alpha_{1122}P_1^3P_2^3} & +\alpha_{1112}(30P_2^4P_1^2+2P_1^6)+12\alpha_{1122}P_2^2P_1^4
+        \end{bmatrix}. \\
+\end{split}
+\end{equation} 

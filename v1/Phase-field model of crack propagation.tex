@@ -1,0 +1,96 @@
+%!TEX TS-program = xelatex
+\documentclass[final,times,fleqn,11pt]{elsarticle}
+\biboptions{sort&compress}
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb,amsthm,mhchem}
+%% The amsthm package provides extended theorem environments
+\usepackage{booktabs,tabularx,graphicx}
+% \usepackage[bold-style=upright,mathbf=sym]{unicode-math}
+\usepackage{bm}
+\usepackage{color,soul,lineno,bm}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.
+% \linenumbers
+\journal{Computer Methods in Applied Mechanics and Engineering}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Phase-field analysis for brittle fracture in ferroelectric materials with flexoelectric effect}
+
+\author[inst1]{Chang Liu\corref{cor1}}
+\cortext[cor1]{Corresponding author. Email address: lc@swjtu.edu.cn}
+\author[inst2]{Yu Tan}
+\author[inst3]{Yong Zhang}
+\author[inst1]{Zhaoyi Liu}
+\author[inst4]{Takahiro Shimada}
+\author[inst1]{Xiangyu Li}
+\author[inst5]{Jie Wang}
+
+
+\affiliation[inst1]{organization={School of Mechanics and Aerospace Engineering, Southwest Jiaotong University},%Department and Organization
+            city={Chengdu},
+            postcode={610031}, 
+            country={China}}
+\affiliation[inst2]{organization={College of Environment and Civil Engineering, Chengdu
+University of Technology},%Department and Organization
+            city={Chengdu},
+            postcode={610059}, 
+            country={China}}
+\affiliation[inst3]{department={School of Aerospace Engineering and Applied Mechanics},
+    organization={Tongji University},%Department and Organization
+            city={Shanghai},
+            postcode={200092}, 
+            country={China}}
+\affiliation[inst4]{department={Department of Mechanical Engineering and Science},
+organization={Kyoto University},
+city={Kyoto},
+postcode={615-8540},
+country={Japan}}
+\affiliation[inst5]{organization={Department of Engineering Mechanics, School of Aeronautics and Astronautics, Zhejiang University},%Department and Organization
+            city={Hangzhou},
+            postcode={310027}, 
+            country={China}}
+
+\begin{abstract}
+Understanding the nature of brittle failure in ferroelectric materials is essential, but difficult due to the complex interaction between mechanical and electrical concentrated fields near the crack tip. In this work, an extended phase-field model incorporating multiple order parameters is constructed to analyze the coupled evolution of fracture and domain behavior in ferroelectric materials. The strain gradient is incorporated into the governing equations to evaluate the impact of the flexoelectric effect during the crack propagation process. Our advanced phase-field model demonstrated that, with the consideration of the flexoelectric effect, both the crack extension rate and crack path are related to the initial polarization direction. This phenomenon is  associated with the eigenstrain induced by the flexoelectric effect. This study provides in-depth insight into the fracture behavior of ferroelectric materials. The developed model framework can also be employed to investigate electromechanical coupling failures in more complex ferroelectric structures.
+\end{abstract}
+
+\begin{keyword}
+%% keywords here, in the form: keyword \sep keyword
+ferroelectric material \sep flexoelectric effect \sep phase-field modeling \sep crack propagation 
+
+\end{keyword}
+
+\end{frontmatter}
+
+% \pagewiselinenumbers
+
+%% main text
+\input{Introduction}
+\input{Section2}
+\input{Section3}
+\input{Section4}
+\input{Section5}
+
+%% \section{}
+%% \label{}
+\section*{Acknowledgments}
+This work is financially supported by the National Nature Science Foundation of China (Grant No. 12202370, 12102387, and 12192214), Natural Science Foundation of Sichuan Province of China (No. 24NSFSC4777) and New Interdisciplinary Cultivation Fund of Southwest Jiaotong University (Grant No. 2682022KJ050).
+
+\appendix
+\input{appendix}
+
+\bibliographystyle{elsarticle-num}
+\bibliography{References}
+
+
+\end{document}
+\endinput
+%%
+%% End of file `elsarticle-template-num.tex'.

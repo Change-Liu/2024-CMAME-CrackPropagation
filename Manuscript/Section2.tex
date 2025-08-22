@@ -1,0 +1,226 @@
+\section{Formulation}\label{Section2}
+To investigate the fracture behaviors in ferroelectrics, it is critical to capture both the evolution of the domain and crack. Consequently, polarization and fracture are utilized as order parameters to describe the coupling evolution.  In this section, the two phase-field models for ferroelectrics and brittle fracture are introduced, respectively. Subsequently, their natural coupling and numerical implementation are discussed.
+
+\subsection{Phase-field model for ferroelectric materials}
+For a ferroelectric material free of body charge and body force, the electric enthalpy density is formulated by \cite{gu_flexoelectricity_2014,jiang_polarization_2015}:
+\begin{equation}\label{eq1}
+    \psi(\mathbf{\varepsilon},\nabla\mathbf{\varepsilon},\phi,\mathbf{P},\nabla\mathbf{P})
+    =\psi_\mathrm{Land}+\psi_\mathrm{grad}+\psi_\mathrm{elas}+\psi_\mathrm{flex}+\psi_\mathrm{elec},
+\end{equation}
+where $\mathbf{\varepsilon}=\frac{1}{2}\left[\nabla \mathbf{u}+(\nabla\mathbf{u})^\mathrm{T}\right]$ is the total strain, $\nabla=\frac{\partial ()}{\partial x_j}\mathbf{e}_j $ is the gradient operator, $\mathbf{u}$, $\phi$ and $\mathbf{P}$ represent the displacement vector, electric potential, and polarization vector, respectively.
+
+The first term on the right side of Eq.\eqref{eq1} is the Landau energy density:
+\begin{equation}
+   \begin{split}
+     \psi_\mathrm{Land}&=\bar{\mathbf{\alpha}}:\mathbf{P}\otimes\mathbf{P}+\bar{\bar{\mathbf{\alpha}^*_4}} \mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}+\bar{\bar{\bar{\mathbf{\alpha}^*_6}}}\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\\
+    &+\bar{\bar{\bar{\bar{\mathbf{\alpha}^*_8}}}} \mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P}\otimes\mathbf{P},
+   \end{split}
+\end{equation}
+where $\bar{\mathbf{\alpha}}$ is the dielectric stiffness linearly depending upon temperature, $\bar{\bar{\mathbf{\alpha}}}$, $\bar{\bar{\bar{\mathbf{\alpha}}}}$ and $\bar{\bar{\bar{\bar{\mathbf{\alpha}}}}}$ are the forth, sixth, and eighth order dielectric stiffness coefficients, respectively. The symbol $\otimes$ and  $\overset{*}{n}$ are dyadic operation and multiple dot product, respectively. For ferroelectric materials, expanding the polynomial to the $8^\mathrm{th}$-order can accurately describe the ferroelectric phases with monoclinic and higher symmetries \cite{heitmann_thermodynamics_2014}.
+
+In the context of the Ginzburg-Landau theory, the electric enthalpy density also depends upon the gradient of polarization. In ferroelectrics, the gradient energy density $\psi_\mathrm{grad}$ represents the energy stored in the polarization domain walls, which can be expressed as:
+\begin{equation}
+    \psi_\mathrm{grad}=\frac{1}{2}\nabla\mathbf{P}:\mathbb{G}:\nabla \mathbf{P},
+\end{equation}
+where $\mathbb{G}$ is the $4^\mathrm{th}$-rank gradient energy tensor. 
+
+The elastic energy density $\psi_\mathrm{elas}$ reads
+\begin{equation}\label{f_elas}
+    \psi_\mathrm{elas}=\frac{1}{2}\mathbf{\varepsilon}_\mathrm{e}:\mathbb{C}:\mathbf{\varepsilon}_\mathrm{e},
+\end{equation}
+with $\mathbb{C}$ donating the elastic stiffness tensor. The elastic strain $\mathbf{\varepsilon}_\mathrm{e}=\mathbf{\varepsilon}-\mathbf{\varepsilon}_0$, where $\mathbf{\varepsilon}_0$ is spontaneous strain of ferroelectric material related to the spontaneous polarization:
+\begin{equation}\label{eq5}
+    \mathbf{\varepsilon}_0=\mathbb{Q}:\mathbf{P}\otimes\mathbf{P},
+\end{equation}
+with $\mathbb{Q}$ denoting the electrostrictive coefficient tensor.
+
+The flexoelectric energy $\psi_\mathrm{flex}$ can be written as 
+\begin{equation}
+    \psi_\mathrm{flex}=\frac{1}{2}(\nabla \mathbf{P}: \mathbb{F}: \mathbf{\varepsilon}-\mathbf{P}\cdot\mathbb{F}\vdots\nabla\mathbf{\varepsilon}),
+\end{equation}
+where $\mathbb{F}$ is the flexoelectric tensor. 
+
+The last term in Eq.\eqref{eq1} is the electric energy:
+\begin{equation}
+    \psi_\mathrm{elec}=-\frac{1}{2}\mathbf{E}\cdot \mathbf{K} \cdot \mathbf{E}-\mathbf{E}\cdot\mathbf{P},
+\end{equation} 
+where $\mathbf{K}$ represents the dielectric coefficient, and $\mathbf{E}=-\nabla \phi$ is the electric field with $\phi$ denoting the electric potential.
+
+\subsection{Phase-field model for brittle fracture}
+Currently, the commonly used ferroelectric materials are ceramics and crystals, which are susceptible to brittle fracture. The phase-field model for brittle fracture is adopted in this paper, which is derived from Griffith fracture theory \cite{francfort_revisiting_1998, bourdin_numerical_2000}. To approximate the discontinuous crack surface, a phase-field variable $\nu$ is introduced. This variable facilitates the representation of the crack as a damage band with a finite width. The variable $\nu$ continuously changes from 0 to 1, representing the process of the material from being intact to completely fractured. 
+
+In the phase-field model for brittle fracture, the total enthalpy density of the structure should include the fracture energy density,
+\begin{equation}
+    \psi_{\mathrm{t}}=\psi_0+\psi_{\mathrm{frac}},
+\end{equation}
+in which $\psi_0$ is the bulk enthalpy density of ferroelectric material with crack, and $\psi_\mathrm{frac}$ represents the fracture energy related to the energy dissipation in creating the crack surface:
+\begin{equation}\label{eq9}
+    \psi_{\mathrm{frac}}(v,\nabla v)=G_c\left[\frac{1}{2l_c}\nu^2+\frac{l_c}{2}\nabla v\cdot \nabla v\right].
+\end{equation}
+In this context,  $G_c$ refers to the critical energy release rate, which is equivalent to twice the surface energy according to the Griffith theory. The width of the damage band is controlled by the positive regularization parameter $l_c$. The width of the damage band reduces to 0 as $l_c$ approaches 0, and the model also approximates the sharp fracture theory \cite{miehe_thermodynamically_2010}.
+
+By introducing the fracture energy, the phase-field model transforms the issue of crack initiation and propagation  into an optimization problem of seeking the minimum energy under multi-field coupling conditions. Therefore, it can be used to directly solve complex fracture problems without additional crack path tracking methods.
+
+\subsection{Brittle fracture in ferroelectrics}
+The phase-field model for brittle fracture turns out to be a continuum damage model. In regions with non-zero $\nu$, the material exhibits varying degrees of damage. This damage affects the electromechanical behavior of ferroelectric material and dissipates part of the electric enthalpy. Furthermore, the evolution of cracks creates new interfaces within the material. Accurately describing the boundary conditions of these internal crack surfaces is crucial to developing a phase-field fracture model. To investigate the crack evolution in ferroelectrics, it is necessary to determine the coupling relationship among the crack and other physical fields, such as strain $\mathbf{\varepsilon}$, electric field $\mathbf{E}$, and polarization $\mathbf{P}$. 
+
+In this study, a degradation function $g(\nu)$ is adopted to characterize the dissipation of enthalpy resulting from damage in ferroelectric materials \cite{abdollahi_phase-field_2011,xu_fracture_2010}. Generally, the degradation function should satisfy the following requirements \cite{miehe_thermodynamically_2010}:
+\begin{enumerate}
+    \item $g(0) = 1 $: This implies no energy dissipation in undamaged regions.
+    \item $g(1) = 0 $: This denotes complete material damage, characterized by the loss of electromechanical properties.
+    \item $g(1)' = 0$: This condition signifies regions of total fracture, where no further evolution of the phase-field occurs.
+    \item $g(\nu)'<0$ if $\nu\neq 1$: This indicates that as damage increases, the degradation function diminishes, rendering $g(\nu)$ a strictly monotonically decreasing function with respect to $\nu$.
+\end{enumerate}
+In view of these considerations, this study utilizes a degradation function in the form of $g(\nu)=(1-\nu)^2+\eta$, where $\eta$ is a small quantity to avoid singularities in the calculation. 
+
+Integrating the degradation function into the elastic energy density yields:
+\begin{equation}
+    \psi_{\mathrm{elas}}^\mathrm{d}=g(\nu)\psi_{\mathrm{elas}}.
+\end{equation}
+This approach ensures that the mechanically traction-free boundary conditions on crack surfaces, denoted as $\mathbf{\sigma}\cdot\mathbf{n}=0$, are satisfied within the framework of phase-field model. Here, $\mathbf{\sigma}$ and $\mathbf{n}$ represent the mechanical stress and the unit outward normal vector, respectively.
+
+Due to the symmetry breaking at the crack surface, the polarization is influenced by the surface effect. In this study, In this study, the free-polarization boundary condition is applied on the crack surface:
+\begin{equation}
+    \frac{\mathrm{d}P_i^+}{\mathrm{d}\mathbf{n}^+}=\frac{\mathrm{d}P_i^-}{\mathrm{d}\mathrm{\mathbf{n}^-}}=0,
+\end{equation}
+where the superscripts "+" and "-" indicate the upper and lower surfaces of the crack, respectively. In the phase-field model, the free-polarization boundary condition is incorporated by multiplying the gradient energy with the degradation function $g(\nu)$, as shown in:
+\begin{equation}
+    \psi_\mathrm{grad}^\mathrm{d}=g(\nu)\psi_\mathrm{grad}.
+\end{equation}
+Given that the flexoelectric energy includes both strain and polarization gradients, it is similarly adjusted by multiplying by the degradation function:
+\begin{equation}
+    \psi_{\mathrm{flex}}^\mathrm{d}=g(\nu) \psi_{\mathrm{flex}}.
+\end{equation}
+Conversely, the Landau energy, which does not contain polarization gradient terms, remains unaltered, as noted in Ref. \cite{abdollahi_phase-field_2011}.
+
+The electric boundary condition is crucial to determine the fracture behavior of ferroelectric materials. In the fracture models for ferroelectrics, there are two classical extreme assumptions, namely electrically permeable and impermeable boundary conditions. Under the permeable boundary condition, the electric potential and electric displacement are identical on both sides of the crack \cite{parton_fracture_1976}:
+\begin{equation}
+    \phi^+=\phi^-,\; \mathbf{D}^+\cdot\mathbf{n}^+=\mathbf{D}^-\cdot\mathbf{n}^-,
+\end{equation}
+The electric energy $\psi_{\mathrm{elec}}$ remains unchanged for the continuity of electric fields. On the other hand, the electrically impermeable boundary condition implies a charge-free crack surface:
+\begin{equation}
+    \mathbf{D}^+\cdot\mathbf{n}^+=\mathbf{D}^-\cdot\mathbf{n}^-=0.
+\end{equation}
+
+In comparison to the electrically permeable crack, there is an absence of electric displacement within the cracked region in the electrically impermeable crack1. Consequently, the electric energy should be modified by  incorporating the degradation function, as shown in the equation \cite{wang_effect_2010}:
+\begin{equation}
+    \psi_{\mathrm{elec}}^\mathrm{d}=g(\nu)\psi_{\mathrm{elec}}.
+\end{equation}
+In the case of an impermeable crack, which represents an open and electrically defective crack, the electric field becomes discontinues across the crack surface.
+
+In short, for ferroelectric materials, the total enthalpy density for the electrically permeable crack and the electrically impermeable crack can be written respectively as:
+\begin{subequations}
+    \begin{equation}
+        \psi_\mathrm{t}=g(\nu)\left( \psi_\mathrm{grad}+\psi_\mathrm{elas}+\psi_\mathrm{flex} \right)+\psi_\mathrm{Land}+\psi_\mathrm{elec}+\psi_\mathrm{frac},
+    \end{equation}
+    \begin{equation}
+        \psi_\mathrm{t}=g(\nu)\left( \psi_\mathrm{grad}+\psi_\mathrm{elas}+\psi_\mathrm{flex}+\psi_\mathrm{elec} \right)+\psi_\mathrm{Land}+\psi_\mathrm{frac}.
+    \end{equation}
+\end{subequations}
+Here, the coupling between the fracture field variable $\nu$ and other physical fields $\mathbf{\varepsilon}$, $\mathbf{\phi}$, and $\mathbf{P}$ have been constructed. 
+
+\subsection{Governing equations}
+The constitutive equations of each physical field can be derived from the total enthalpy density $\psi_\mathrm{t}$:
+\begin{equation}
+    \mathbf{\sigma}=\frac{\partial \psi_\mathrm{t}}{\partial\mathbf{\varepsilon}},\; 
+    \mathbf{\tau}=\frac{\partial \psi_\mathrm{t}}{\partial \nabla\mathbf{\varepsilon}},\; 
+    \mathbf{\eta}=\frac{\partial\psi_\mathrm{t}}{\partial \mathbf{P}},\;
+    \mathbf{\Lambda}=\frac{\partial \psi_\mathrm{t}}{\partial \nabla\mathbf{P}},\;
+    \mathbf{D}=\frac{\partial \psi_\mathrm{t}}{\partial \mathbf{E}},
+\end{equation}
+where $\mathbf{\sigma}$, $\mathbf{\tau}$, $\mathbf{\eta}$, $ \mathbf{\Lambda}$, and $\mathbf{D}$ denote the mechanical stress tensor, the higher order stress, the effective local electric force, the higher order local electric force and the electric displacement, respectively. The thermodynamic consistency of the constitutive equations incorporating the flexoelectric effect has been proven by Gu et al. \cite{gu_flexoelectricity_2014} and Tagantsev et al. \cite{tagantsev_flexoelectric_2012}.
+
+In absence of the body force and body charge, the stress and electric displacement filed of a ferroelectric material should satisfy the continuum mechanical equilibrium equations and the Maxwell equation \cite{chang_liu_isogeometric_2019}:
+\begin{equation}\label{equilibrium}
+    \nabla\cdot\left( \mathbf{\sigma}-\nabla\cdot\mathbf{\tau} \right)=0\; \mathrm{in}\; \Omega,\;  
+\end{equation}
+\begin{equation}\label{Maxwell}
+    \nabla \cdot \mathbf{D}=0 \; \mathrm{in}\; \Omega,\;
+\end{equation}
+with the Dirichlet and Neumann-type boundary conditions:
+\begin{equation}
+    \begin{split}
+         (\mathbf{\sigma}-\nabla\cdot\mathbf{\tau})\cdot \mathbf{n}=\mathbf{t} \;\mathrm{on}\; \partial\Omega_t,\; 
+        & \mathbf{\tau}:\mathbf{n}\otimes \mathbf{n} = \mathbf{M} \; \mathrm{on}\; \partial \Omega_M,
+        &\mathbf{u}=\mathbf{u}^*\; \mathrm{on}\; \partial\Omega_u, \;\\
+         \mathbf{D}\cdot \mathbf{n}=-\omega\;\mathrm{on}\; \partial\Omega_\omega,\;
+        &\phi=\phi^* \;\mathrm{on}\; \partial\Omega_\phi,
+    \end{split}
+\end{equation}
+where $\partial\Omega_t$, $\partial\Omega_M$, $\partial\Omega_u$, $\partial\Omega_\omega$, and $\partial\Omega_\phi$ are boundaries of the ferroelectric body $\Omega$ with applied traction, higher order traction, displacement, free charge and electric potential, respectively.
+
+Ferroelectric materials typically form a domain structure spontaneously below the Curie temperature, characterized by polarization arranged in a head-to-tail configuration in most circumstances. When subjected to external stress fields or electric fields, the domain morphology will evolve with the motion and nucleation of domain walls. The temporal and spatial evolution of polarization domain is governed by the time-depenedent Ginzbureg Landau equation:
+\begin{equation}\label{TDGL}
+    \dot{\mathbf{P}}=-L_P\left[ \frac{\partial \psi_t}{\partial \mathbf{P}}-\nabla \cdot \left( \frac{\partial\psi_t}{\partial \nabla\mathbf{P}} \right) \right],
+\end{equation}
+where $\dot{\mathbf{P}}=\partial \mathbf{P}/\partial t$ represents the time derivative of polarization, and $L_P$ is the kinetic coefficient for polarization evolution. 
+
+The crack propagation process is described in Ref.\cite{abdollahi_phase-field_2011}:
+\begin{equation}\label{phase-field crack1}
+    \dot{\nu}=-L_\nu \left[ \frac{\partial\psi_t}{\partial v}-\nabla \cdot \left( \frac{\partial \psi_t}{\partial \nabla \nu} \right) \right].
+\end{equation}
+In Eq.\eqref{phase-field crack1}, the term $\partial\psi_t/\partial v$ describes the influence of displacement, electric field, and polarization on the fracture evolution. Since crack propagation is inherently coupled with domain evolution, a finite kinetic coefficient $L_\nu$ is incorporated to capture the dynamic switching of polarization during crack growth.
+
+Selecting an appropriate driving force is essential for accurately predicting fractures. Experimental research by Park and Sun \cite{park_fracture_1995} demonstrated that the fracture behavior in piezoelectric material is primarily driven by mechanical forces. Inspired by this finding, only the elastic energy is employed to drive the crack propagation in the phase-field model \cite{wu_phase-field_2021}. Therefore, Eq.\eqref{phase-field crack1} should be adjusted as:
+\begin{equation}\label{phase-field crack2}
+    \dot{\nu}=L_\nu\left[ 2(1-\nu) \psi_\mathrm{elas}+G_c\left(\frac{\nu}{l_c} +l_c\Delta \nu\right) \right].
+\end{equation}
+
+While the driving force for crack propagation is described in Eq.\eqref{phase-field crack2}, it does not distinguish fracture behaviors under tensile and compressive stresses. Miehe et al. \cite{miehe_thermodynamically_2010} introduced a strain energy decomposition method utilizing the spectral decomposition of the strain tensor. In this method, the elastic strain tensor $\mathbf{\varepsilon}_\mathrm{e}$ is decomposed into the positive and negative components as:
+\begin{equation}
+    \mathbf{\varepsilon}_\mathrm{e}=\mathbf{\varepsilon}^+_\mathrm{e} + \mathbf{\varepsilon}^-_\mathrm{e}  ,
+\end{equation}
+where 
+\begin{equation}
+    \mathbf{\varepsilon}_\mathrm{e}^\pm=\sum_{d}^{a=1}\langle \varepsilon_a\rangle^\pm \mathbf{n}_a\otimes\mathbf{n}_a,
+\end{equation}
+with $\varepsilon_a$ and $\mathbf{n}_a$ representing the eigenvalues and eigenvectors of the strain $\mathbf{\varepsilon}$, respectively. For simplicity, the Macaulay brackets $\langle x \rangle^\pm$ are introduced: 
+\begin{equation}
+    \langle x \rangle^\pm = \frac{1}{2}(x\pm |x|).
+\end{equation}
+Then, the elastic energy can be decomposed as:
+\begin{equation}
+    \psi_\mathrm{eals}=\psi_\mathrm{eals}^++\psi_\mathrm{eals}^-,
+\end{equation}
+with 
+\begin{subequations}
+    \begin{equation}
+        \psi^+_\mathrm{elas}=\frac{1}{2}\mathbf{\varepsilon}_\mathrm{e}^+ : \mathbb{C} : \mathbf{\varepsilon}_\mathrm{e}^+,
+    \end{equation}
+    \begin{equation}
+        \psi^-_\mathrm{elas}=\frac{1}{2}\mathbf{\varepsilon}_\mathrm{e}^- : \mathbb{C} : \mathbf{\varepsilon}_\mathrm{e}^-.
+    \end{equation}
+\end{subequations}
+In the decomposed strain energy density, only the positive part $\psi^+_\mathrm{elas}$ drives the crack propagation, while the negative part $\psi^-_\mathrm{elas}$ does not induce changes in the crack. 
+
+To prevent crack healing during the unloading process, $\nu$ should maintain monotonic increase. Therefore, a historical variable $H$ is induced:
+\begin{equation}
+    H(\mathbf{x},t)=\max_{t\in [0,t_n]} \left\{  \psi^+_\mathrm{elas}(\mathbf{x})\right\},
+\end{equation}
+which represents the maximum value of $\psi^+_\mathrm{elas}$ over the time interval $[0,t_n]$. Consequently, Eq.\eqref{phase-field crack2} should be modified:
+\begin{equation}
+    \dot{\nu}=L_\nu\left[ 2(1-\nu)H+G_c\left(\frac{\nu}{l_c} + l_c\Delta \nu\right) \right].
+\end{equation}
+
+An additional constraint is employed in case of the inter penetration of crack face in compression:
+\begin{equation}
+     \nu(x)=0, \forall x: \psi^+(x)<\psi^-(x).
+\end{equation}
+
+For some models, it is necessary to set the initial crack. Within the framework of the phase-field method, three typical approaches are available \cite{sargado_high-accuracy_2018}: 
+\begin{enumerate}
+    \item Geometrically defined crack: Initial cracks are represented as discrete cracks within the model's geometry.
+    \item Phase-field defined crack: Initial cracks are given by the Dirichlet boundary conditions, where $\nu=1$ in the cracked region and $\phi=0$ in all other regions. 
+    \item Historically defined crack: Initial cracks are modeled by the local historical variable $H(\mathbf{x},0)$
+    \begin{equation}\label{historical variable}
+        H(\mathbf{x},0)=B_c\left\{ 
+            \begin{aligned}
+                &\frac{G_c}{2l_0}(1-\frac{2d(\mathbf{x},l)}{l_0}) & d(\mathbf{x},l)\leq \frac{l_0}{2} \\
+                &0 & d(\mathbf{x},l) > \frac{l_0}{2}
+            \end{aligned}
+         \right.,
+    \end{equation}
+    where $d(\mathbf{x},l)$ is the distance from point $\mathbf{x}$ to the initial crack $l$.
+\end{enumerate}
+
+Modeling the initial crack through the phase-field method tends to accelerate crack growth, whereas other approaches may slow down the process. In this work, the historically defined crack is used with the scalar parameter $B=1000$ for all the simulations \cite{borden_phase-field_2012}.

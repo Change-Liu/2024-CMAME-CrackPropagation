@@ -1,0 +1,122 @@
+\section{Numerical implementation}\label{Section3}
+\subsection{Isogeometric analysis}
+With the presence of the flexoelectric effect, the strain gradients appear in the governing equations Eq.\eqref{equilibrium}-\eqref{phase-field crack2}. Thus, the globally $C^1$-continuous basis function is required to guarantee the accuracy of spatial discretization. However, constructing such functions within the classical finite element method is still a significant challenge. As an alternative approach, the isogeometric analysis method (IGA) is employed to numerically solve the governing equations in this work. The polynomial splines over hierarchical T-meshes (PHT-spline) are adopted as the basis function to achieve high-order continuity \cite{deng_polynomial_2008}. comparison to the commonly used non-uniform rational B-spline (NURBs) in IGA, the PHT-spline is more convenient for implementing local mesh refinement, enhancing the computational efficiency for complex problems \cite{anitescu_recovery-based_2018}. Moreover, PHT-splines facilitate automatic mesh refinement around the crack propagation path, which can balance solution accuracy and computational efficiency \cite{goswami_adaptive_2020}.
+
+PHT-splines extend the concept of B-splines to T-meshes. The knot vectors $U^i$ are defined as 
+\begin{equation}
+    U^i=\{\xi_1^i, \xi_2^i, \ldots, \xi_{n+1}^i\} \quad i\in\{1,2,3\},
+\end{equation}
+where $0=\xi_1^i\leq\xi_2^i\leq \ldots \leq\xi_{n+1}^i=1$ for each parameter direction $i$, and $n_i$ denotes the number of elements along each parameter direction.
+
+For the two-dimensional problems, the mesh $\mathbb{T}_0$ in the parameter space is constructed as
+\begin{equation}
+    \mathbb{T}_0=\{E_{0,k_m}=[\xi_{k_1-1}^{(1)},\xi_{k_1}^{(1)}]\times[\xi_{k_2-1}^{(2)},\xi_{k_2}^{(2)}], k_1=2,\ldots,n_1+1,\;  k_2=2,\dots,n_2+1\},
+\end{equation}
+where $E_{0,k_m}$ represents the $k_m$-th element in the mesh at level 0 with $k_m=(k_2-2)n_1+(k_1-1)$. The Bézier expression of the basis function $N_{l,k_m}$ is given by
+\begin{equation}
+    N_{l,k_m}(\xi^{(1)},\xi^{(2)})=\sum_{i_1=1}^{p+1}\sum_{i_2=1}^{p+1}C^E_{i_1 i_2,k_m}\hat{B}_{i_1 i_2}\circ\hat{\mathbf{F}}^{-1}(\xi^{(1)},\xi^{(2)}),
+\end{equation}
+in which $C^E_{i_1 i_2,k_m}$ is the Bézier coefficients of the basis functions, $\hat{B}_{i_1 i_2}$ denotes the tensor product of Bernstein polynomial, and $\hat{\mathbf{F}}$ represents the linear mapping from the reference interval $[-1,1]$ to the element $E_{l, k_m}$. The Bernstein polynomial in one dimension, $B_{i,p}(\xi)$, is defined as:
+\begin{equation}
+    B_{i,p}(\xi)=2^{-p}\left( \begin{matrix}
+        p \\
+        i-1
+    \end{matrix} \right)(1-\xi)^{p-i+1}(1+\xi)^{i-1},\; i=1,2,\ldots,p+1,
+\end{equation}
+with $p$ indicating the order of the Bernstein polynomial. For a comprehensive exploration of PHT-spline and local mesh refinement strategies, please refer to Ref. \cite{goswami_adaptive_2020,anitescu_recovery-based_2018}.
+
+\subsection{Discretization}
+In the IGA implementation, the displacement $\mathbf{u}$, the electric potential $\phi$, the polarization $\mathbf{P}$, and the fracture order parameter $v$ are taken as the nodal degree of freedom, which can be discretized as 
+\begin{equation}\label{discretizedfields}
+    \mathbf{u}=\sum_{i=1}^n \mathbf{N}_i\mathbf{u}_i,\;
+    \phi=\sum_{i=1}^n N_i\phi_i,\;
+    \mathbf{P}=\sum_{i=1}^n \mathbf{N}_i\mathbf{P}_i,\;
+     \nu=\sum_{i=1}^n \mathbf{N}_i\nu_i,
+\end{equation}
+where $\mathbf{u}_i$, $\phi_i$, $\mathbf{P}_i$, and $\nu_i$ represent the field variables at the $i$-th control point, and $N_i$ is the corresponding basis function, $n$ is the total number of basis functions associated with the element. For simplicity, the two-dimensional model is taken as an example. The matrix $N_i$ is defined as 
+\begin{equation}
+    \mathbf{N}_i=\left[ \begin{matrix}
+        N_i & 0 \\
+        0 & N_i
+    \end{matrix} \right].
+\end{equation}
+The strains, electric fields, polarization gradients, fracture order parameter gradients, and strain gradient can be approximated by
+\begin{equation}
+\begin{split}\label{eq40}
+    & \mathbf{\varepsilon}=\sum^n_{i=1}\mathbf{B}^u_i u_i,\;
+        \mathbf{E}=-\sum^n_{i=1}\mathbf{B}^\phi_i \phi_i, \;
+        \nabla\mathbf{P}=\sum^n_{i=1}\mathbf{B}^P_i\mathbf{P}_i,\\
+    & \nabla \nu= \sum^n_{i=1} \mathbf{B}^{\nu}_i\nu_i,\;
+        \nabla\mathbf{\varepsilon}=\sum^n_{i=1} \mathbf{H}_i \mathbf{u}_i,\;
+\end{split}
+\end{equation}
+where the gradient operators $\mathbf{B}^u_i$, $\mathbf{B}^\phi_i$, $\mathbf{B}^P_i$, $\mathbf{B}^\nu_i$, and the Hessian operator $\mathbf{H}_i $ can be expressed as following
+\begingroup
+\renewcommand{\arraystretch}{1.5}
+\begin{equation}\label{HB}
+    \begin{split}
+       & \mathbf{B}^u_i=\left[ \begin{matrix}
+            \frac{\partial}{\partial x} & 0 \\
+            0 &  \frac{\partial}{\partial y} \\
+            \frac{\partial}{\partial y} &  \frac{\partial}{\partial x}
+        \end{matrix} \right]\mathbf{N}_i, \;
+        \mathbf{B}^\phi_i=\left[\begin{matrix}
+            \frac{\partial}{\partial x} \\
+            \frac{\partial}{\partial y}
+        \end{matrix}\right]N_i,\\
+        &\mathbf{B}^P_i=\left[ \begin{matrix}
+            \frac{\partial}{\partial x} & 0 \\
+            0 &  \frac{\partial}{\partial y} \\
+            \frac{\partial}{\partial y} & 0 \\
+            0 &  \frac{\partial}{\partial x} \\
+        \end{matrix} \right]\mathbf{N}_i, \;
+        \mathbf{B}^\nu_i=\left[\begin{matrix}
+            \frac{\partial}{\partial x} \\
+            \frac{\partial}{\partial y}
+        \end{matrix}\right]N_i, \\
+        &\mathbf{H}_i=\left[ \begin{matrix}
+            \frac{\partial^2}{\partial x^2} & \frac{\partial^2}{\partial x \partial y} & 0 & 0 & \frac{\partial^2}{\partial x \partial y} & \frac{\partial^2}{\partial y^2} \\
+            0 & 0 & \frac{\partial^2}{\partial x \partial y} & \frac{\partial^2}{\partial y^2} & \frac{\partial^2}{\partial x^2} & \frac{\partial^2}{\partial x \partial y}
+        \end{matrix} \right]^T\mathbf{N}_i.
+    \end{split}
+\end{equation}
+\endgroup
+
+According to the variation principle of virtual work, the weak form of governing equation can be obtained as 
+\begin{subequations}\label{weakform}
+    \begin{equation}\label{weak1}
+        \int_\Omega \left( \mathbf{\sigma}:\nabla\delta\mathbf{u}+\mathbf{\tau}\vdots\nabla\delta\mathbf{\varepsilon} \right)\mathrm{d}V-\int_{\partial \Omega_t}\mathbf{t}\cdot \delta \mathbf{u}\,\mathrm{d}S - \int_{\partial\Omega_M}\mathbf{M}:\delta\mathbf{\varepsilon}\,\mathrm{d}S=0,
+    \end{equation}
+    \begin{equation}\label{weak2}
+        \int_\Omega\mathbf{D}\cdot\nabla\delta\phi\,\mathrm{d}V+\int_{\partial\Omega_\omega}\omega\delta\phi\,\mathrm{d}S=0,
+    \end{equation}
+    \begin{equation}\label{weak3}
+        \int_\Omega \left[ \left(\mathbf{\eta}+\frac{\dot{\mathbf{P}}}{L_P}\right)\cdot \delta \mathbf{P}
+        +\mathbf{\Lambda}:\nabla\delta\mathbf{P} \right] \mathrm{d}V=0,
+    \end{equation}
+    \begin{equation}\label{weak4}
+        \int_\Omega\left[ 2(\nu-1)\left( H+\frac{G_c}{l_c} \right)+\frac{\dot{\nu}}{L_\nu}\right]\delta\nu\,\mathrm{d}V+\int_\Omega L_\nu G_c l_c \nabla \nu \cdot \nabla \delta \nu \,\mathrm{d}V=0.
+    \end{equation}
+\end{subequations}
+
+Substituting Eqs.\eqref{discretizedfields}-\eqref{HB} into Eqs.\eqref{weakform}, the weak form of the governing equations is reformulated into matrix notation. From these expressions, both the residual and the tangent matrices can be derived, which are listed in the supplementary material.
+
+To align with existing phase-field models for ferroelectric materials \cite{chang_liu_isogeometric_2019}, this study adopts a staggered algorithm to solve Eqs.\eqref{weakform}. The process starts by addressing the displacement, electric potential, and polarization fields through Eqs.\eqref{weak1}-\eqref{weak3}, which employs the backward Euler method for temporal integration. The nonlinear equations at each iteration are solved by the Newton-Raphson method. Upon achieving a steady state, the computed values for $\mathbf{u}$, $\phi$, and $\mathbf{P}$ are  utilized in Eq.\eqref{weak4} to determine $\nu$ at the current timestep. The details of the staggered algorithm are outlined in Algorithm \ref{flowchart}.
+
+\begin{algorithm}[!htbp]
+    \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+    \SetKwFunction{Union}{Union}\SetKwFunction{FindCompress}{FindCompress}
+    \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+    \Input{$\mathbf{u}_{n-1}$, $\phi_{n-1}$, $\mathbf{P}_{n-1}$, $\nu_{n-1}$}
+    \Output{$\mathbf{u}_{n}$, $\phi_{n}$, $\mathbf{P}_{n}$, $\nu_{n}$}
+    \BlankLine
+    Set boundary conditions $\mathbf{t}$, $\mathbf{M}$, $\mathbf{u}^*$, $\omega$, and $\phi^*$ \;
+    Set tolerance $\delta_P$ and $\delta_\nu$ \;
+    $\mathbf{u}_{n}^0=\mathbf{u}_{n-1}$, $\phi_{n}^0=\phi_{n-1}$, $\mathbf{P}_{n}^0=\mathbf{P}_{n-1}$, $\nu_{n}^0=\nu_{n-1}$\;
+    \Repeat{$\|\mathbf{P}_{n}^{k+1}-\mathbf{P}_{n}^{k}\|_\infty<\delta_P$ and  $\|\nu_{n}^{k+1}-\nu_{n}^{k}\|_\infty<\delta_\nu$ }{Calculate $\mathbf{u}^{k+1}_{n}$, $\phi^{k+1}_{n}$, and $\mathbf{P}^{k+1}_{n}$ from Eqs.\eqref{weak1}-\eqref{weak3} with $\nu_{n}^k$\;
+    Update the historical variable $H$\;
+    Calcluate $\nu_{n}^{k+1}$ from Eq.\eqref{weak4} with $\mathbf{u}^{k+1}_{n}$, $\phi^{k+1}_{n}$, and $\mathbf{P}^{k+1}_{n}$\; }
+    $\mathbf{u}_{n}=\mathbf{u}_{n}^{k+1}$, $\phi_{n}=\phi_{n}^{k+1}$, $\mathbf{P}_{n}=\mathbf{P}_{n}^{k+1}$, $\nu_{n}=\nu_{n}^{k+1}$
+
+    \caption{Flowchart of the staggered scheme}\label{flowchart}
+\end{algorithm}
